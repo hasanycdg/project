@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { format, parseISO } from 'date-fns';
 import { formatCurrency } from '@/utils/formatters';
 import { useData } from '@/context/DataContext';
-import { ShoppingBag, DollarSign, Home, Car, Coffee, Gift, Heart, Plane, MoreVertical, Trash2, Edit3, LucideProps } from 'lucide-react-native';
+import { ShoppingBag, DollarSign, Home, Car, Coffee, Gift, Heart, Plane, MoreVertical, Trash2, Edit3, LucideProps, CreditCard, Tag, Briefcase, TrendingUp, Wrench } from 'lucide-react-native';
 import type { Transaction, Category } from '@/types';
 
 type Props = {
@@ -27,24 +27,36 @@ type IconComponent = React.ComponentType<LucideProps>;
 // Function to get the appropriate icon for a category
 function getCategoryIcon(categoryName: string): IconComponent {
   switch (categoryName.toLowerCase()) {
-    case 'shopping':
-      return ShoppingBag;
-    case 'salary':
-      return DollarSign;
-    case 'rent':
-      return Home;
-    case 'transportation':
-      return Car;
     case 'food & dining':
       return Coffee;
-    case 'entertainment':
-      return Gift;
+    case 'transportation':
+      return Car;
+    case 'shopping':
+      return ShoppingBag;
+    case 'bills & utilities':
+      return CreditCard;
     case 'health':
+      return Heart;
+    case 'other':
+      return Tag;
+    case 'car':
+      return Car;
+    case 'salary':
+      return DollarSign;
+    case 'freelance income':
+      return Briefcase;
+    case 'investment returns':
+      return TrendingUp;
+    case 'other income':
+      return Tag;
+    case 'papa':
+      return Wrench;
+    case 'girlfriend':
       return Heart;
     case 'travel':
       return Plane;
     default:
-      return ShoppingBag;
+      return Tag;
   }
 }
 
