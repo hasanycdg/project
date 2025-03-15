@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Text, Button, Card, TextInput, List, IconButton, Dialog, Portal, useTheme } from 'react-native-paper';
+import { Text, Button, Card, TextInput, List, IconButton, Dialog, Portal, useTheme, Switch } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Category } from '@/types';
 import IconSelector from '@/components/IconSelector';
 import { renderIcon } from '@/utils/iconUtils';
+import { toggleNotifications, areNotificationsEnabled } from '@/components/NotificationCenter';
 
 export default function SettingsScreen() {
+  const { user, signOut, session } = useAuth();
   const theme = useTheme();
-  const { user, signOut } = useAuth();
   const [profile, setProfile] = useState({
     full_name: '',
     email: '',
@@ -18,18 +19,36 @@ export default function SettingsScreen() {
   });
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState('');
-  const [newCategoryType, setNewCategoryType] = useState<'income' | 'expense'>('expense');
+  const [newCategoryType, setNewCategoryType] = useState<'expense' | 'income'>('expense');
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [isIconSelectorVisible, setIsIconSelectorVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   useEffect(() => {
     if (user) {
       fetchUserProfile();
       fetchCategories();
+      checkNotificationSettings();
     }
   }, [user]);
+
+  const checkNotificationSettings = async () => {
+    const enabled = await areNotificationsEnabled();
+    setNotificationsEnabled(enabled);
+  };
+
+  const handleToggleNotifications = async (value: boolean) => {
+    const success = await toggleNotifications(value);
+    if (success) {
+      setNotificationsEnabled(value);
+    } else {
+      // If toggling failed, revert to the previous state
+      setNotificationsEnabled(!value);
+      Alert.alert('Error', 'Failed to update notification settings');
+    }
+  };
 
   const fetchUserProfile = async () => {
     try {
@@ -248,8 +267,8 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
         <Text variant="headlineMedium" style={styles.title}>Settings</Text>
         
         <Card style={styles.card}>
@@ -352,6 +371,19 @@ export default function SettingsScreen() {
                 <Text style={styles.noDataText}>No categories added yet</Text>
               )}
             </List.Section>
+          </Card.Content>
+        </Card>
+        
+        <Card style={styles.card}>
+          <Card.Title title="Notifications" />
+          <Card.Content>
+            <View style={styles.settingRow}>
+              <Text>Daily Budget Reminder (8 PM)</Text>
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={handleToggleNotifications}
+              />
+            </View>
           </Card.Content>
         </Card>
         
@@ -521,5 +553,20 @@ const styles = StyleSheet.create({
   categoryTypeButton: {
     flex: 1,
     marginRight: 8,
+  },
+  notificationsToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  notificationsToggleLabel: {
+    marginRight: 16,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
   },
 });

@@ -6,6 +6,8 @@ import { theme } from '@/constants/theme';
 import { AuthProvider } from '@/context/AuthContext';
 import { DataProvider } from '@/context/DataContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+// Import NotificationCenter using the @/ alias to avoid path resolution issues
+import NotificationCenter from '@/components/NotificationCenter';
 
 declare global {
   interface Window {
@@ -23,6 +25,7 @@ export default function RootLayout() {
       <AuthProvider>
         <DataProvider>
           <PaperProvider theme={theme}>
+            <NotificationCenter />
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
